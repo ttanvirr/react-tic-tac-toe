@@ -1,6 +1,25 @@
-# Initial setups
+# Table of contents <!-- omit in toc -->
 
-## React with JavaScript + Vite
+- [1. Initial setups](#1-initial-setups)
+  - [1.1. React with JavaScript + Vite](#11-react-with-javascript--vite)
+      - [1.1.0.1. Run the app](#1101-run-the-app)
+- [2. The Tic Tac Toe app](#2-the-tic-tac-toe-app)
+      - [2.0.0.1. Refactor/Clean up codes](#2001-refactorclean-up-codes)
+      - [2.0.0.2. Run the app](#2002-run-the-app)
+  - [2.1. Components](#21-components)
+  - [2.2. index.css](#22-indexcss)
+  - [2.3. main.jsx](#23-mainjsx)
+  - [2.4. Building the board](#24-building-the-board)
+  - [2.5. Re-usable component](#25-re-usable-component)
+  - [2.6. Passing data through prop](#26-passing-data-through-prop)
+  - [2.7. Making an interactive component (useState hook)](#27-making-an-interactive-component-usestate-hook)
+  - [2.8. React Developer Tools](#28-react-developer-tools)
+  - [2.9. Lifting state up](#29-lifting-state-up)
+  - [2.10. Why immutability is important](#210-why-immutability-is-important)
+
+# 1. Initial setups
+
+## 1.1. React with JavaScript + Vite
 
 ```bash
 npm create vite@latest
@@ -15,7 +34,7 @@ Select JavaScript from the options
 npm install
 ```
 
-#### Run the app
+#### 1.1.0.1. Run the app
 
 ```bash
 npm run dev
@@ -23,9 +42,9 @@ npm run dev
 
 - Check if you see the default page by Vite React in the browser.
 
-# The Tic Tac Toe app
+# 2. The Tic Tac Toe app
 
-#### Refactor/Clean up codes
+#### 2.0.0.1. Refactor/Clean up codes
 
 - Remove the App.css file
 - In App.jsx remove everything and paste the following codes
@@ -38,9 +57,7 @@ export default function Square() {
 }
 ```
 
-- In index.css replace everything with the following:
-
-index.css
+- In `index.css` replace everything with the following:
 
 ```css
 * {
@@ -135,7 +152,7 @@ body {
 }
 ```
 
-#### Run the app
+#### 2.0.0.2. Run the app
 
 ```bash
 npm run dev
@@ -143,15 +160,15 @@ npm run dev
 
 - Check if you see the button with X in the browser
 
-## Components
+## 2.1. Components
 
-The code in App.jsx creates a component.
+The code in `App.jsx` creates a component.
 
 `In React, a component is a piece of reusable code that represents a part of a user interface.`
 
 Let’s look at the component line by line to see what’s going on:
 
-App.jsx
+`App.jsx`
 
 ```jsx
 export default function Square() {
@@ -167,11 +184,11 @@ export default function Square() {
 
 4. className="square" is a button `property or prop` that tells CSS how to style the button
 
-## index.css
+## 2.2. index.css
 
 - This is the main css file created by vite-react
 
-## main.jsx
+## 2.3. main.jsx
 
 ```jsx
 import { StrictMode } from "react"
@@ -186,15 +203,15 @@ createRoot(document.getElementById("root")!).render(
 )
 ```
 
-- it is the bridge between the component you created in the App.jsx file and the web browser.
+- it is the bridge between the component you created in the `App.jsx` file and the web browser.
 - React DOM library talk to web browsers
 - the App component is imported and called here
 
-## Building the board
+## 2.4. Building the board
 
 Currently the board is only a single square, but we need nine! If we just try and copy paste our square to make two squares like this:
 
-App.jsx
+`App.jsx`
 
 ```jsx
 export default function Square() {
@@ -227,9 +244,9 @@ We created nine buttons.
 
 But The squares are all in a single line, not in a grid like you need for our board.
 
-To fix this, in the App.js file, update the Square component to look like this:
+To fix this, in the `App.js` file, update the Square component to look like this:
 
-App.jsx
+`App.jsx`
 
 ```jsx
 export default function Square() {
@@ -261,7 +278,7 @@ export default function Square() {
 - Now we have our tic-tac-toe board
 - At this point let's rename out component as Board instead of Square (that makes sense)
 
-App.jsx
+`App.jsx`
 
 ```jsx
 export default function Board() {
@@ -269,16 +286,17 @@ export default function Board() {
 }
 ```
 
-## Re-usable component
+## 2.5. Re-usable component
 
 With how you’ve built the board so far you would need to copy-paste the code that updates the square nine times!
 Instead of copy-pasting, `React’s component architecture allows you to create a reusable component to avoid messy, duplicated code.`
 
-First, you are going to copy the line defining your first square (<button className="square">1</button>) from your Board component into a new Square component and then you’ll update the Board component to render that Square component using JSX syntax::
+First, you are going to copy the line defining your first square (`<button className="square">1</button>`) from your `Board` component into a new `Square` component and then you’ll update the `Board` component to render that `Square` component using JSX syntax:
 
-- Component names must start with capital letter
+> [!NOTE]
+> Component names must start with capital letter
 
-App.jsx
+`App.jsx`
 
 ```jsx
 function Square() {
@@ -312,13 +330,13 @@ export default function Board() {
 
 Oh no! Now each square says “1”.
 
-## Passing data through prop
+## 2.6. Passing data through prop
 
-To fix the current issue, you will use props to pass the value each square should have from the parent component (Board) to its child (Square).
+To fix the current issue, you will use props to pass the value each square should have from the parent component (`Board`) to its child (`Square`).
 
-- Update the Square component to read the `value` prop that you’ll pass from the Board:
+Update the `Square` component to read the `value` prop that you’ll pass from the `Board`:
 
-App.jsx
+`App.jsx`
 
 ```jsx
 function Square({ value }) {
@@ -328,8 +346,8 @@ function Square({ value }) {
 
 - Props can be destructured within curley braces as function argument
 - To use the variable props we again need curley braces. Curley braces are the way to 'escape into JavaScript' from JSX.
-- Now we should see empty board, because the `Board` component hasn’t passed the value prop to each Square component it renders yet.
-- To fix it you’ll add the value prop to each Square component rendered by the Board component:
+- Now we should see empty board, because the `Board` component hasn’t passed the value prop to each `Square` component it renders yet.
+- To fix it you’ll add the value prop to each `Square` component rendered by the `Board` component:
 
 App.jsx
 
@@ -359,12 +377,16 @@ export default function Board() {
 }
 ```
 
-## Making an interactive component (useState hook)
+Now you should see a grid of numbers again:
 
-Let’s fill the Square component with an X when you click it.
+![alt text](doc_images/image01.png)
 
-- Declare a function called handleClick inside of the Square.
-- Then, add onClick to the props of the button JSX element returned from the Square:
+## 2.7. Making an interactive component (useState hook)
+
+Let’s fill the `Square` component with an `X` when you click it.
+
+- Declare a function called `handleClick` inside of the `Square`.
+- Then, add `onClick` to the props of the button JSX element returned from the Square:
 
 ```jsx
 function Square({ value }) {
@@ -385,10 +407,10 @@ If you click on a square now, you should see a log saying "clicked!" in the Cons
 - As a next step, you want the Square component to “remember” that it got clicked, and fill it with an “X” mark. To “remember” things and update values, components use `state`.
 
 - React provides a special function called `useState` that you can call from your component.
-- Let’s store the current value of the Square in state, and change it when the Square is clicked.
+- Let’s store the current value of the `Square` in state, and change it when the `Square` is clicked.
 
-- Import useState at the top of the file.
-- Remove the value prop from the Square component. Instead, add a new line at the start of the Square that calls useState. Have it return a state variable called value:
+- Import `useState` at the top of the file.
+- Remove the `value` prop from the `Square` component. Instead, add a new line at the start of the `Square` that calls `useState`. Have it return a state variable called `value`:
 
 **App.jsx**
 
@@ -402,9 +424,9 @@ function Square() {
     //...
 ```
 
-- `value` stores the value and `setValue` is a function that can be used to change the value. The null passed to useState is used as the initial value for this state variable.
+- `value` stores the value and `setValue` is a function that can be used to change the value. The null passed to `useState` is used as the initial value for this state variable.
 
-- Since the Square component no longer accepts props anymore, you’ll remove the value prop from all nine of the Square components created by the Board component:
+- Since the `Square` component no longer accepts props anymore, you’ll remove the value prop from all nine of the `Square` components created by the `Board` component:
 
 **App.jsx**
 
@@ -436,8 +458,8 @@ export default function Board() {
 }
 ```
 
-- Now you’ll change Square to display an “X” when clicked.
-- Replace the console.log("clicked!"); event handler with setValue('X');.
+- Now you’ll change `Square` to display an `“X”` when clicked.
+- Replace the `console.log("clicked!");` event handler with `setValue('X');`.
 
 **App.jsx**
 
@@ -447,8 +469,180 @@ function handleClick() {
 }
 ```
 
-- By calling this set function from an onClick handler, you’re telling React to re-render that Square (with value= 'X') whenever its <button> is clicked.
-- Click on any Square, and “X” should show up.
-- Each Square has its own state: the value stored in each Square is completely independent of the others.
+- By calling this set function from an onClick handler, you’re telling React to re-render that Square (with value= 'X') whenever its `<button>` is clicked.
+- Click on any square, and `“X”` should show up.
+- Each square has its own state: the value stored in each square is completely independent of the others.
 
-## React Developer Tools
+## 2.8. React Developer Tools
+
+React Developer Tools let you check the props and the state of your React components. It is available as a Chrome, Firefox, and Edge browser extension.
+
+After you install the extension, a new `Components` tab will appear in your browser Developer Tools for sites using React.
+
+To inspect a particular component on the screen, use the inspect button in the top left corner of the Components tab.
+
+## 2.9. Lifting state up
+
+Currently, each `Square` component maintains a part of the game’s state. To check for a winner in a tic-tac-toe game, the `Board` would need to somehow know the state of each of the 9 `Square` components.
+
+the best approach is to store the game’s state in the parent `Board` component instead of in each `Square`. The `Board` component can tell each `Square` what to display by passing a prop.
+
+> [!NOTE]
+> To collect data from multiple children, or to have two child components communicate with each other, declare the shared state in their parent component instead. The parent component can pass that state back down to the children via props. This keeps the child components in sync with each other and with their parent.
+
+Let's edit the `Board` component so that it declares a state variable named `squares` that defaults to an array of 9 nulls corresponding to the 9 squares:
+
+**App.jsx**
+
+```jsx
+// ...
+export default function Board() {
+  const [squares, setSquares] = useState(Array(9).fill(null));
+  return (
+    // ...
+  );
+}
+```
+
+Now your `Board` component needs to pass the value prop down to each `Square` that it renders:
+
+**App.jsx**
+
+```jsx
+export default function Board() {
+  const [squares, setSquares] = useState(Array(9).fill(null))
+  return (
+    <>
+      <div className="board-row">
+        <Square value={squares[0]} />
+        <Square value={squares[1]} />
+        <Square value={squares[2]} />
+      </div>
+      <div className="board-row">
+        <Square value={squares[3]} />
+        <Square value={squares[4]} />
+        <Square value={squares[5]} />
+      </div>
+      <div className="board-row">
+        <Square value={squares[6]} />
+        <Square value={squares[7]} />
+        <Square value={squares[8]} />
+      </div>
+    </>
+  )
+}
+```
+
+Next, edit the `Square` component to receive the value prop from the `Board` component. Remove the `Square` component’s own stateful tracking of value and the button’s `onClick` prop:
+
+**App.jsx**
+
+```jsx
+function Square({ value }) {
+  return <button className="square">{value}</button>
+}
+```
+
+At this point you should see an empty tic-tac-toe board.
+
+Next, you need to change what happens when a Square is clicked.
+
+_Since state is private to a component that defines it, you cannot update the `Board`’s state directly from `Square`._
+
+Instead, you’ll pass down a function from the `Board` component to the `Square` component, and you’ll have `Square` receive that function as props and call it when a square is clicked.
+
+**App.jsx**
+
+```jsx
+function Square({ value, onSquareClick }) {
+  return (
+    <button className="square" onClick={onSquareClick}>
+      {value}
+    </button>
+  )
+}
+```
+
+Now you’ll connect the `onSquareClick` prop to a function in the `Board` component, named `'handleClick'`. Then define the function to update squares array.
+
+`App.jsx`
+
+```jsx
+export default function Board() {
+  const [squares, setSquares] = useState(Array(9).fill(null))
+
+  function handleClick() {
+    const nextSquares = squares.slice()
+    nextSquares[0] = "X"
+    setSquares(nextSquares)
+  }
+
+  return (
+    <>
+      <div className="board-row">
+        <Square value={squares[0]} onSquareClick={handleClick} />
+        // ...
+      </div>
+      // ...
+    </>
+  )
+}
+```
+
+The `handleClick` function creates a copy of the squares array (`nextSquares`) with the JavaScript `slice()` Array method.
+
+Your `handleClick` function is hardcoded to update the index for the upper left square (0). Let’s update `handleClick` to be able to update any square.
+
+```jsx
+// ...
+function handleClick(i) {
+  const nextSquares = squares.slice()
+  nextSquares[i] = "X"
+  setSquares(nextSquares)
+}
+// ...
+```
+
+Next, you will need to pass that `i` to `handleClick`.
+
+```jsx
+<Square value={squares[0]} onSquareClick={handleClick(0)} />
+```
+
+`But this doesn’t work.` The `handleClick(0)` will call the function too early before the click. Eventually, this will lead to an infinite loop.
+
+Let’s fix this and update all Square calls:
+
+```jsx
+export default function Board() {
+  // ...
+  return (
+    <>
+      <div className="board-row">
+        <Square value={squares[0]} onSquareClick={() => handleClick(0)} />
+        <Square value={squares[1]} onSquareClick={() => handleClick(1)} />
+        <Square value={squares[2]} onSquareClick={() => handleClick(2)} />
+      </div>
+      <div className="board-row">
+        <Square value={squares[3]} onSquareClick={() => handleClick(3)} />
+        <Square value={squares[4]} onSquareClick={() => handleClick(4)} />
+        <Square value={squares[5]} onSquareClick={() => handleClick(5)} />
+      </div>
+      <div className="board-row">
+        <Square value={squares[6]} onSquareClick={() => handleClick(6)} />
+        <Square value={squares[7]} onSquareClick={() => handleClick(7)} />
+        <Square value={squares[8]} onSquareClick={() => handleClick(8)} />
+      </div>
+    </>
+  )
+}
+```
+
+Notice the new `() =>` syntax. When the square is clicked, the code after the `=>` “arrow” will run.
+
+Now you can again add X’s to any square on the board by clicking on them. But this time all the state management is handled by the `Board` component!
+
+> [!NOTE]
+> The `<button>` element is a built-in component and its `onClick` property is also buit-in. For custom components like `Square`, you could give any name to the `Square`’s `onSquareClick` prop or Board’s `handleClick` function. In React, it’s conventional to use `onSomething` names for props which represent events and `handleSomething` for the function definitions which handle those events.
+
+## 2.10. Why immutability is important

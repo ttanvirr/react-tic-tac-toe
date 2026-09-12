@@ -4,18 +4,17 @@
   - [1.1. React with JavaScript + Vite](#11-react-with-javascript--vite)
       - [1.1.0.1. Run the app](#1101-run-the-app)
 - [2. The Tic Tac Toe app](#2-the-tic-tac-toe-app)
-      - [2.0.0.1. Refactor/Clean up codes](#2001-refactorclean-up-codes)
-      - [2.0.0.2. Run the app](#2002-run-the-app)
-  - [2.1. Components](#21-components)
-  - [2.2. index.css](#22-indexcss)
-  - [2.3. main.jsx](#23-mainjsx)
-  - [2.4. Building the board](#24-building-the-board)
-  - [2.5. Re-usable component](#25-re-usable-component)
-  - [2.6. Passing data through prop](#26-passing-data-through-prop)
-  - [2.7. Making an interactive component (useState hook)](#27-making-an-interactive-component-usestate-hook)
-  - [2.8. React Developer Tools](#28-react-developer-tools)
-  - [2.9. Lifting state up](#29-lifting-state-up)
-  - [2.10. Why immutability is important](#210-why-immutability-is-important)
+  - [2.1. Refactor/Clean up codes](#21-refactorclean-up-codes)
+  - [2.3. Components](#23-components)
+  - [2.4. index.css](#24-indexcss)
+  - [2.5. main.jsx](#25-mainjsx)
+  - [2.6. Building the board](#26-building-the-board)
+  - [2.7. Re-usable component](#27-re-usable-component)
+  - [2.8. Passing data through prop](#28-passing-data-through-prop)
+  - [2.9. Making an interactive component (useState hook)](#29-making-an-interactive-component-usestate-hook)
+  - [2.10. React Developer Tools](#210-react-developer-tools)
+  - [2.11. Lifting state up](#211-lifting-state-up)
+  - [2.12. Why immutability is important](#212-why-immutability-is-important)
 
 # 1. Initial setups
 
@@ -44,12 +43,12 @@ npm run dev
 
 # 2. The Tic Tac Toe app
 
-#### 2.0.0.1. Refactor/Clean up codes
+## 2.1. Refactor/Clean up codes
 
 - Remove the App.css file
 - In App.jsx remove everything and paste the following codes
 
-App.jsx
+`App.jsx`
 
 ```jsx
 export default function Square() {
@@ -152,15 +151,15 @@ body {
 }
 ```
 
-#### 2.0.0.2. Run the app
+- Run the app
 
-```bash
-npm run dev
-```
+  ```bash
+  npm run dev
+  ```
 
-- Check if you see the button with X in the browser
+- Check if you see the button with `X` in the browser
 
-## 2.1. Components
+## 2.3. Components
 
 The code in `App.jsx` creates a component.
 
@@ -184,11 +183,11 @@ export default function Square() {
 
 4. className="square" is a button `property or prop` that tells CSS how to style the button
 
-## 2.2. index.css
+## 2.4. index.css
 
 - This is the main css file created by vite-react
 
-## 2.3. main.jsx
+## 2.5. main.jsx
 
 ```jsx
 import { StrictMode } from "react"
@@ -207,7 +206,7 @@ createRoot(document.getElementById("root")!).render(
 - React DOM library talk to web browsers
 - the App component is imported and called here
 
-## 2.4. Building the board
+## 2.6. Building the board
 
 Currently the board is only a single square, but we need nine! If we just try and copy paste our square to make two squares like this:
 
@@ -286,7 +285,7 @@ export default function Board() {
 }
 ```
 
-## 2.5. Re-usable component
+## 2.7. Re-usable component
 
 With how you’ve built the board so far you would need to copy-paste the code that updates the square nine times!
 Instead of copy-pasting, `React’s component architecture allows you to create a reusable component to avoid messy, duplicated code.`
@@ -330,7 +329,7 @@ export default function Board() {
 
 Oh no! Now each square says “1”.
 
-## 2.6. Passing data through prop
+## 2.8. Passing data through prop
 
 To fix the current issue, you will use props to pass the value each square should have from the parent component (`Board`) to its child (`Square`).
 
@@ -381,7 +380,7 @@ Now you should see a grid of numbers again:
 
 ![alt text](doc_images/image01.png)
 
-## 2.7. Making an interactive component (useState hook)
+## 2.9. Making an interactive component (useState hook)
 
 Let’s fill the `Square` component with an `X` when you click it.
 
@@ -473,7 +472,7 @@ function handleClick() {
 - Click on any square, and `“X”` should show up.
 - Each square has its own state: the value stored in each square is completely independent of the others.
 
-## 2.8. React Developer Tools
+## 2.10. React Developer Tools
 
 React Developer Tools let you check the props and the state of your React components. It is available as a Chrome, Firefox, and Edge browser extension.
 
@@ -481,7 +480,7 @@ After you install the extension, a new `Components` tab will appear in your brow
 
 To inspect a particular component on the screen, use the inspect button in the top left corner of the Components tab.
 
-## 2.9. Lifting state up
+## 2.11. Lifting state up
 
 Currently, each `Square` component maintains a part of the game’s state. To check for a winner in a tic-tac-toe game, the `Board` would need to somehow know the state of each of the 9 `Square` components.
 
@@ -645,4 +644,4 @@ Now you can again add X’s to any square on the board by clicking on them. But 
 > [!NOTE]
 > The `<button>` element is a built-in component and its `onClick` property is also buit-in. For custom components like `Square`, you could give any name to the `Square`’s `onSquareClick` prop or Board’s `handleClick` function. In React, it’s conventional to use `onSomething` names for props which represent events and `handleSomething` for the function definitions which handle those events.
 
-## 2.10. Why immutability is important
+## 2.12. Why immutability is important

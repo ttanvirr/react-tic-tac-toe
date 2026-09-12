@@ -15,6 +15,7 @@
   - [2.10. React Developer Tools](#210-react-developer-tools)
   - [2.11. Lifting state up](#211-lifting-state-up)
   - [2.12. Why immutability is important](#212-why-immutability-is-important)
+  - [Taking turns](#taking-turns)
 
 # 1. Initial setups
 
@@ -645,3 +646,82 @@ Now you can again add X’s to any square on the board by clicking on them. But 
 > The `<button>` element is a built-in component and its `onClick` property is also buit-in. For custom components like `Square`, you could give any name to the `Square`’s `onSquareClick` prop or Board’s `handleClick` function. In React, it’s conventional to use `onSomething` names for props which represent events and `handleSomething` for the function definitions which handle those events.
 
 ## 2.12. Why immutability is important
+
+Note how in `handleClick`, you call `.slice()` to create a copy of the squares array instead of modifying the existing array. To explain why, we need to discuss immutability.
+
+`Immutability` means replacing data with a new copy instead of modifying the existing data directly.
+
+Here is what it looks like when we changed data without mutating the `squares` array:
+
+```js
+const squares = [null, null, null, null, null, null, null, null, null]
+
+const nextSquares = ["X", null, null, null, null, null, null, null, null]
+
+// Now `squares` is unchanged, but `nextSquares` first element is 'X' rather than `null`
+```
+
+**Why it matters:**
+
+- Time travel: Keeping previous versions of data makes undo/redo and history features easier to implement.
+- Performance: React can quickly compare whether data has changed by checking object references, making it easier to skip unnecessary re-renders when appropriate.
+
+> _Rule:_ When updating arrays or objects in React state, create a new copy instead of mutating the existing data.
+
+You can learn more about how React chooses when to re-render a component in [the memo API reference](https://react.dev/reference/react/memo).
+
+## Taking turns
+
+It’s now time to fix a major defect in this tic-tac-toe game: the `O`s cannot be marked on the board.
+
+You’ll set the first move to be `X` by default. Let’s keep track of this by adding another piece of state to the `Board` component:
+
+```jsx
+function Board() {
+  const [xIsNext, setXIsNext] = useState(true)
+  const [squares, setSquares] = useState(Array(9).fill(null))
+
+  // ...
+}
+```
+
+Each time a player moves, `xIsNext` (a boolean) will be flipped and the game’s state will be saved. You’ll update the `Board`’s `handleClick` function:
+
+```jsx
+export default function Board() {
+  // ...
+
+  function handleClick(i) {
+    const nextSquares = squares.slice();
+    if (xIsNext) {
+      nextSquares[i] = "X";
+    } else {
+      nextSquares[i] = "O";
+    }
+    setSquares(nextSquares);
+    setXIsNext(!xIsNext);
+  }
+
+  return (
+    //...
+  );
+}
+```
+
+Now, as you click on different squares, they will alternate between `X` and `O`, as they should!
+
+But wait, there’s a problem. Try clicking on the same square multiple times. The `X` is overwritten by an `O`!
+
+You’ll fix this by checking if the square already has an `X` or an `O`. If the square is already filled, you will return in the `handleClick` function early—before it tries to update the board state.
+
+```jsx
+function handleClick(i) {
+  // If the square is already filled, ignore updating it
+  if (squares[i]) return
+
+  const nextSquares = squares.slice()
+  //...
+}
+```
+
+Now you can only add `X`’s or `O`’s to empty squares!

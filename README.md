@@ -5,17 +5,18 @@
       - [1.1.0.1. Run the app](#1101-run-the-app)
 - [2. The Tic Tac Toe app](#2-the-tic-tac-toe-app)
   - [2.1. Refactor/Clean up codes](#21-refactorclean-up-codes)
-  - [2.3. Components](#23-components)
-  - [2.4. index.css](#24-indexcss)
-  - [2.5. main.jsx](#25-mainjsx)
-  - [2.6. Building the board](#26-building-the-board)
-  - [2.7. Re-usable component](#27-re-usable-component)
-  - [2.8. Passing data through prop](#28-passing-data-through-prop)
-  - [2.9. Making an interactive component (useState hook)](#29-making-an-interactive-component-usestate-hook)
-  - [2.10. React Developer Tools](#210-react-developer-tools)
-  - [2.11. Lifting state up](#211-lifting-state-up)
-  - [2.12. Why immutability is important](#212-why-immutability-is-important)
-  - [Taking turns](#taking-turns)
+  - [2.2. Components](#22-components)
+  - [2.3. index.css](#23-indexcss)
+  - [2.4. main.jsx](#24-mainjsx)
+  - [2.5. Building the board](#25-building-the-board)
+  - [2.6. Re-usable component](#26-re-usable-component)
+  - [2.7. Passing data through prop](#27-passing-data-through-prop)
+  - [2.8. Making an interactive component (useState hook)](#28-making-an-interactive-component-usestate-hook)
+  - [2.9. React Developer Tools](#29-react-developer-tools)
+  - [2.10. Lifting state up](#210-lifting-state-up)
+  - [2.11. Why immutability is important](#211-why-immutability-is-important)
+  - [2.12. Taking turns](#212-taking-turns)
+  - [2.13. Declaring a winner](#213-declaring-a-winner)
 
 # 1. Initial setups
 
@@ -160,7 +161,7 @@ body {
 
 - Check if you see the button with `X` in the browser
 
-## 2.3. Components
+## 2.2. Components
 
 The code in `App.jsx` creates a component.
 
@@ -184,11 +185,11 @@ export default function Square() {
 
 4. className="square" is a button `property or prop` that tells CSS how to style the button
 
-## 2.4. index.css
+## 2.3. index.css
 
 - This is the main css file created by vite-react
 
-## 2.5. main.jsx
+## 2.4. main.jsx
 
 ```jsx
 import { StrictMode } from "react"
@@ -207,7 +208,7 @@ createRoot(document.getElementById("root")!).render(
 - React DOM library talk to web browsers
 - the App component is imported and called here
 
-## 2.6. Building the board
+## 2.5. Building the board
 
 Currently the board is only a single square, but we need nine! If we just try and copy paste our square to make two squares like this:
 
@@ -286,7 +287,7 @@ export default function Board() {
 }
 ```
 
-## 2.7. Re-usable component
+## 2.6. Re-usable component
 
 With how you’ve built the board so far you would need to copy-paste the code that updates the square nine times!
 Instead of copy-pasting, `React’s component architecture allows you to create a reusable component to avoid messy, duplicated code.`
@@ -330,7 +331,7 @@ export default function Board() {
 
 Oh no! Now each square says “1”.
 
-## 2.8. Passing data through prop
+## 2.7. Passing data through prop
 
 To fix the current issue, you will use props to pass the value each square should have from the parent component (`Board`) to its child (`Square`).
 
@@ -381,7 +382,7 @@ Now you should see a grid of numbers again:
 
 ![alt text](doc_images/image01.png)
 
-## 2.9. Making an interactive component (useState hook)
+## 2.8. Making an interactive component (useState hook)
 
 Let’s fill the `Square` component with an `X` when you click it.
 
@@ -473,7 +474,7 @@ function handleClick() {
 - Click on any square, and `“X”` should show up.
 - Each square has its own state: the value stored in each square is completely independent of the others.
 
-## 2.10. React Developer Tools
+## 2.9. React Developer Tools
 
 React Developer Tools let you check the props and the state of your React components. It is available as a Chrome, Firefox, and Edge browser extension.
 
@@ -481,7 +482,7 @@ After you install the extension, a new `Components` tab will appear in your brow
 
 To inspect a particular component on the screen, use the inspect button in the top left corner of the Components tab.
 
-## 2.11. Lifting state up
+## 2.10. Lifting state up
 
 Currently, each `Square` component maintains a part of the game’s state. To check for a winner in a tic-tac-toe game, the `Board` would need to somehow know the state of each of the 9 `Square` components.
 
@@ -645,7 +646,7 @@ Now you can again add X’s to any square on the board by clicking on them. But 
 > [!NOTE]
 > The `<button>` element is a built-in component and its `onClick` property is also buit-in. For custom components like `Square`, you could give any name to the `Square`’s `onSquareClick` prop or Board’s `handleClick` function. In React, it’s conventional to use `onSomething` names for props which represent events and `handleSomething` for the function definitions which handle those events.
 
-## 2.12. Why immutability is important
+## 2.11. Why immutability is important
 
 Note how in `handleClick`, you call `.slice()` to create a copy of the squares array instead of modifying the existing array. To explain why, we need to discuss immutability.
 
@@ -670,7 +671,7 @@ const nextSquares = ["X", null, null, null, null, null, null, null, null]
 
 You can learn more about how React chooses when to re-render a component in [the memo API reference](https://react.dev/reference/react/memo).
 
-## Taking turns
+## 2.12. Taking turns
 
 It’s now time to fix a major defect in this tic-tac-toe game: the `O`s cannot be marked on the board.
 
@@ -725,3 +726,84 @@ function handleClick(i) {
 ```
 
 Now you can only add `X`’s or `O`’s to empty squares!
+
+## 2.13. Declaring a winner
+
+Now that the players can take turns, you’ll want to show when the game is won and there are no more turns to make. To do this you’ll add a helper function called `calculateWinner` that takes an array of 9 squares, which represents the current state of the board, checks each winning combination for a winner and returns `'X'`, `'O'`, or `null` accordingly:
+
+`App.jsx`
+
+```jsx
+export default function Board() {
+  //...
+}
+
+function calculateWinner(squares) {
+  // lines contains the 8 possible winning combination indices
+  const lines = [
+    [0, 1, 2], // top row
+    [3, 4, 5], // middle row
+    [6, 7, 8], // bottom row
+    [0, 3, 6], // left column
+    [1, 4, 7], // middle column
+    [2, 5, 8], // right column
+    [0, 4, 8], // diagonal
+    [2, 4, 6], // diagonal
+  ]
+
+  for (let i = 0; i < lines.length; i++) {
+    const [a, b, c] = lines[i]
+
+    if (squares[i] && squares[a] === squares[b] && squares[a] === squares[c]) {
+      return squares[a]
+    }
+  }
+  // If there is no winner
+  return null
+}
+```
+
+> [!NOTE]
+> It does not matter whether you define `calculateWinner` before or after the `Board`
+
+You will call `calculateWinner(squares)` in the `Board` component’s `handleClick` function to check if a player has won. You can perform this check at the same time you check if a user has clicked a square that already has an `X` or an `O`. We’d like to return early in both cases:
+
+`App.jsx`
+
+```jsx
+function handleClick(i) {
+  if (squares[i] || calculateWinner(squares)) {
+    return
+  }
+  const nextSquares = squares.slice()
+  //...
+}
+```
+
+To let the players know when the game is over, you can display text such as “Winner: X” or “Winner: O”. To do that you’ll add a `status` section to the `Board` component. The status will display the winner if the game is over and if the game is ongoing you’ll display which player’s turn is next:
+
+`App.jsx`
+
+```jsx
+export default function Board() {
+  // ...
+
+  // Game status
+  const winner = calculateWinner(squares)
+  let status
+  if (winner) {
+    status = `Winner: ${winner} 👍`
+  } else {
+    status = `Next player: ${xIsNext ? "X" : "0"}`
+  }
+
+  return (
+    <>
+      <div className="status">{status}</div>
+      <div className="board-row">
+        // ...
+  )
+}
+```
+
+Congratulations! You now have a working tic-tac-toe game. And you’ve just learned the basics of React too.

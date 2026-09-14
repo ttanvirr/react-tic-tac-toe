@@ -20,6 +20,9 @@
 - [3. Adding time travel](#3-adding-time-travel)
   - [3.1. Storing a history of moves](#31-storing-a-history-of-moves)
   - [3.2. Lifting state up, again](#32-lifting-state-up-again)
+  - [3.3. Showing the past moves](#33-showing-the-past-moves)
+  - [3.4. Picking a key](#34-picking-a-key)
+  - [3.5. Implementing time travel](#35-implementing-time-travel)
 
 # 1. Initial setups
 
@@ -955,3 +958,168 @@ export default function Game() {
 Here, `[...history, nextSquares]` creates a new array that contains all the items in `history`, followed by `nextSquares`.
 
 At this point, you’ve moved the state to live in the `Game` component, and the UI should be fully working, just as it was before the refactor.
+
+## 3.3. Showing the past moves
+
+Since you are recording the history, you can now display a list of past moves to the player.
+
+You already have an array of history moves in state, so now you need to transform it to an array of React `<button>` elements. You’ll use array `map` method to transform your history of moves into React elements representing buttons on the screen to “jump” to past moves. Let’s `map` over the history in the `Game` component:
+
+```jsx
+export default function Game() {
+  // ...
+
+  function handlePlay(nextSquares) {
+    // ...
+  }
+
+  function jumpTo(nextMove) {
+    // TODO
+  }
+
+  const moves = history.map((squares, move) => {
+    let description
+    if (move > 0) {
+      description = "Go to move #" + move
+    } else {
+      description = "Go to game start"
+    }
+    return (
+      <li>
+        <button onClick={() => jumpTo(move)}>{description}</button>
+      </li>
+    )
+  })
+
+  return (
+    <div className="game">
+      {/* ... */}
+      <div className="game-info">
+        <ol>{moves}</ol>
+      </div>
+    </div>
+  )
+}
+```
+
+Here, the `square` argument goes through each element of history, and the move argument goes through each array index.
+
+For now, you should see a list of the moves that occurred in the game:
+
+![alt text](doc_images/image02.png)
+
+You'll also see an error in the developer tools console saying:
+
+```
+Warning: Each child in an array or iterator should have a unique “key” prop.
+```
+
+Let’s discuss what the “key” error means.
+
+## 3.4. Picking a key
+
+When you update a list, React needs to determine what has changed. You could have added, removed, re-arranged, or updated the list’s items.
+
+Imagine transitioning from
+
+```html
+<li>Alexa: 7 tasks left</li>
+<li>Ben: 5 tasks left</li>
+```
+
+to
+
+```html
+<li>Ben: 9 tasks left</li>
+<li>Claudia: 8 tasks left</li>
+<li>Alexa: 5 tasks left</li>
+```
+
+React is a computer program and does not know what you intended, so you need to specify a key property for each list item to differentiate each list item from its siblings. If your data was from a database, Alexa, Ben, and Claudia’s database IDs could be used as keys.
+
+```jsx
+<li key={user.id}>
+  {user.name}: {user.taskCount} tasks left
+</li>
+```
+
+When a list is re-rendered, React takes each list item’s key and searches the previous list’s items for a matching key. If the current list has a key that didn’t exist before, React creates a component. If the current list is missing a key that existed in the previous list, React destroys the previous component. If two keys match, the corresponding component is moved.
+
+Keys tell React about the identity of each component, which allows React to maintain state between re-renders. If a component’s key changes, the component will be destroyed and re-created with a new state.
+
+`Key is a special and reserved property in React. React automatically uses key to decide which components to update.`
+
+It’s strongly recommended that you assign proper keys whenever you build dynamic lists.
+
+If no key is specified, React will report an error and use the array index as a key by default. Using the array index as a key is problematic when trying to re-order a list’s items or inserting/removing list items. Explicitly passing `key={i}` silences the error but has the same problems as array indices and is not recommended in most cases.
+
+Keys do not need to be globally unique; they only need to be unique between components and their siblings.
+
+## 3.5. Implementing time travel
+
+In the tic-tac-toe game’s history, the moves will never be re-ordered, deleted, or inserted in the middle, so it’s safe to use the move index as a key.
+
+In the `Game` function, you can add the key as `<li key={move}>`, and if you reload the rendered game, React’s “key” error should disappear:
+
+`App.jsx`
+
+```jsx
+<li key={move}>
+  <button onClick={() => jumpTo(move)}>{description}</button>
+</li>
+```
+
+Before you can implement `jumpTo`, you need the `Game` component to keep track of which step the user is currently viewing. To do this, define a new state variable called `currentMove`, defaulting to `0`:
+
+```jsx
+export default function Game() {
+  const [xIsNext, setXIsNext] = useState(true)
+  const [history, setHistory] = useState([Array(9).fill(null)])
+  const [currentMove, setCurrentMove] = useState(0)
+  const currentSquares = history[history.length - 1]
+  //...
+}
+```
+
+Next, update the `jumpTo` function inside `Game` to update that `currentMove`. You’ll also set `xIsNext` to `true` if the number that you’re changing `currentMove` to is even.
+
+```jsx
+export default function Game() {
+  // ...
+  function jumpTo(nextMove) {
+    setCurrentMove(nextMove)
+    // X's moves are: 0, 2, 4, 6, .... even numbers
+    setXIsNext(nextMove % 2 === 0)
+  }
+  //...
+}
+```
+
+You will now make two changes to the Game’s `handlePlay` function which is called when you click on a square.
+
+- If you “go back in time” and then make a new move from that point, you only want to keep the history up to that point. Instead of adding `nextSquares` after all items (`...` spread syntax) in `history`, you’ll add it after all items in `history.slice(0, currentMove + 1)` so that you’re only keeping that portion of the old history.
+- Each time a move is made, you need to update `currentMove` to point to the latest history entry.
+
+```jsx
+function handlePlay(nextSquares) {
+  const nextHistory = [...history.slice(0, currentMove + 1), nextSquares]
+  setHistory(nextHistory)
+  setCurrentMove(nextHistory.length - 1)
+  setXIsNext(!xIsNext)
+}
+```
+
+Finally, you will modify the `Game` component to render the currently selected move, instead of always rendering the final move:
+
+```jsx
+export default function Game() {
+  const [xIsNext, setXIsNext] = useState(true)
+  const [history, setHistory] = useState([Array(9).fill(null)])
+  const [currentMove, setCurrentMove] = useState(0)
+  const currentSquares = history[currentMove]
+
+  // ...
+}
+```
+
+Now, if you click on any step in the game’s history, the tic-tac-toe board should immediately update to show what the board looked like after that step occurred.

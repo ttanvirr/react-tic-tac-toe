@@ -23,6 +23,8 @@
   - [3.3. Showing the past moves](#33-showing-the-past-moves)
   - [3.4. Picking a key](#34-picking-a-key)
   - [3.5. Implementing time travel](#35-implementing-time-travel)
+  - [3.6. Final cleanup](#36-final-cleanup)
+- [4. Wrapping up](#4-wrapping-up)
 
 # 1. Initial setups
 
@@ -1123,3 +1125,54 @@ export default function Game() {
 ```
 
 Now, if you click on any step in the game’s history, the tic-tac-toe board should immediately update to show what the board looked like after that step occurred.
+
+## 3.6. Final cleanup
+
+You may notice that `xIsNext === true` when `currentMove` is even and `xIsNext === false` when `currentMove` is odd. In other words, if you know the value of `currentMove`, then you can always figure out what `xIsNext` should be.
+
+There’s no reason for you to store both of these in state. In fact, always try to avoid redundant state.
+
+Change Game so that it doesn’t store `xIsNext` as a separate state variable and instead figures it out based on the `currentMove`:
+
+```jsx
+export default function Game() {
+  const [history, setHistory] = useState([Array(9).fill(null)])
+  const [currentMove, setCurrentMove] = useState(0)
+  const xIsNext = currentMove % 2 === 0
+  const currentSquares = history[currentMove]
+
+  function handlePlay(nextSquares) {
+    const nextHistory = [...history.slice(0, currentMove + 1), nextSquares]
+    setHistory(nextHistory)
+    setCurrentMove(nextHistory.length - 1)
+  }
+
+  function jumpTo(nextMove) {
+    setCurrentMove(nextMove)
+  }
+  // ...
+}
+```
+
+Now, there’s no chance for `xIsNext` to get out of sync with `currentMove`.
+
+# 4. Wrapping up
+
+Congratulations! You’ve created a tic-tac-toe game that:
+
+- Lets you play tic-tac-toe,
+- Indicates when a player has won the game,
+- Stores a game’s history as a game progresses,
+- Allows players to review a game’s history and see previous versions of a game’s board.
+
+We hope you now feel like you have a decent grasp of how React works.
+
+Check out the final result.
+
+Here are some ideas for improvements that you could make to the tic-tac-toe game, listed in order of increasing difficulty:
+
+1. For the current move only, show “You are at move #…” instead of a button.
+2. Rewrite Board to use two loops to make the squares instead of hardcoding them.
+3. Add a toggle button that lets you sort the moves in either ascending or descending order.
+4. When someone wins, highlight the three squares that caused the win (and when no one wins, display a message about the result being a draw).
+5. Display the location for each move in the format (row, col) in the move history list.

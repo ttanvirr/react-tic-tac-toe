@@ -17,6 +17,9 @@
   - [2.11. Why immutability is important](#211-why-immutability-is-important)
   - [2.12. Taking turns](#212-taking-turns)
   - [2.13. Declaring a winner](#213-declaring-a-winner)
+- [3. Adding time travel](#3-adding-time-travel)
+  - [3.1. Storing a history of moves](#31-storing-a-history-of-moves)
+  - [3.2. Lifting state up, again](#32-lifting-state-up-again)
 
 # 1. Initial setups
 
@@ -754,7 +757,7 @@ function calculateWinner(squares) {
   for (let i = 0; i < lines.length; i++) {
     const [a, b, c] = lines[i]
 
-    if (squares[i] && squares[a] === squares[b] && squares[a] === squares[c]) {
+    if (squares[a] && squares[a] === squares[b] && squares[a] === squares[c]) {
       return squares[a]
     }
   }
@@ -807,3 +810,148 @@ export default function Board() {
 ```
 
 Congratulations! You now have a working tic-tac-toe game. And you’ve just learned the basics of React too.
+
+# 3. Adding time travel
+
+As a final exercise, let’s make it possible to “go back in time” to the previous moves in the game.
+
+## 3.1. Storing a history of moves
+
+You used `slice()` to create a new copy of the squares array after every move. This will allow you to store every past version of the squares array, and navigate between them.
+
+You’ll store the past squares arrays in another array called `history`, as a new state variable. The `history` array represents all board states, from the first to the last move, and has a shape like this:
+
+```js
+;[
+  // Before first move
+  [null, null, null, null, null, null, null, null, null],
+  // After first move
+  [null, null, null, null, "X", null, null, null, null],
+  // After second move
+  [null, null, null, null, "X", null, null, null, "O"],
+  // ...
+]
+```
+
+## 3.2. Lifting state up, again
+
+You will now write a new top-level component called `Game`. Here, you will place the `history` state that contains the entire game history.
+
+You'll also remove the `squares` state from its child `Board` component and lift it up into the top-level `Game` component. This gives the `Game` component full control over the `Board`’s data and lets it instruct the `Board` to render previous turns from the history.
+
+First, add a `Game` component with export default. Have it render the `Board` component and some markup:
+
+```jsx
+function Board() {
+  // ...
+}
+
+export default function Game() {
+  return (
+    <div className="game">
+      <div className="game-board">
+        <Board />
+      </div>
+      <div className="game-info">
+        <ol>{/*TODO*/}</ol>
+      </div>
+    </div>
+  )
+}
+```
+
+Note that we're now default exporting the `Game` component instead of `Board`.
+
+Add some state to the `Game` component to track which player is next and the history of moves:
+
+```jsx
+export default function Game() {
+  const [xIsNext, setXIsNext] = useState(true);
+  const [history, setHistory] = useState([Array(9).fill(null)]);
+  // ...
+```
+
+Notice how `[Array(9).fill(null)]` is an array with a single item, which itself is an array of 9 nulls.
+
+To render the squares for the current move, you’ll want to read the last squares array from the `history`:
+
+```jsx
+export default function Game() {
+  const [xIsNext, setXIsNext] = useState(true);
+  const [history, setHistory] = useState([Array(9).fill(null)]);
+  const currentSquares = history[history.length - 1];
+  // ...
+```
+
+Next, create a `handlePlay` function inside the `Game` component that will be called by the `Board` component to update the game. Pass `xIsNext`, `currentSquares` and `handlePlay` as props to the `Board` component:
+
+```jsx
+export default function Game() {
+  const [xIsNext, setXIsNext] = useState(true);
+  const [history, setHistory] = useState([Array(9).fill(null)]);
+  const currentSquares = history[history.length - 1];
+
+  function handlePlay(nextSquares) {
+    // TODO
+  }
+
+  return (
+    <div className="game">
+      <div className="game-board">
+        <Board xIsNext={xIsNext} squares={currentSquares} onPlay={handlePlay} />
+        //...
+  )
+}
+```
+
+Change the `Board` component to take the three props: `xIsNext`, `squares`, and a new `onPlay` function that `Board` can call with the updated squares array when a player makes a move. Next, remove the first two lines of the `Board` function that call `useState`:
+
+```jsx
+function Board({ xIsNext, squares, onPlay }) {
+  function handleClick(i) {
+    //...
+  }
+  // ...
+}
+```
+
+Now replace the `setSquares` and `setXIsNext` calls in `handleClick` with a single call to `onPlay` function so the `Game` component can update the `Board` when the user clicks a square:
+
+```jsx
+function Board({ xIsNext, squares, onPlay }) {
+  function handleClick(i) {
+    if (calculateWinner(squares) || squares[i]) {
+      return
+    }
+    const nextSquares = squares.slice()
+    if (xIsNext) {
+      nextSquares[i] = "X"
+    } else {
+      nextSquares[i] = "O"
+    }
+    onPlay(nextSquares)
+  }
+  //...
+}
+```
+
+Now, you need to implement the `handlePlay` function in the `Game` component to get the game working again.
+
+What should `handlePlay` do when called? The `handlePlay` function needs to update Game’s state to trigger a re-render.
+
+Notice that `Board` passes the updated squares array to `onPlay`. You’ll want to update `history` by appending the updated `squares` array (`nextSquares`) as a new history entry. You also want to toggle `xIsNext`, just as `Board` used to do:
+
+```jsx
+export default function Game() {
+  //...
+  function handlePlay(nextSquares) {
+    setHistory([...history, nextSquares])
+    setXIsNext(!xIsNext)
+  }
+  //...
+}
+```
+
+Here, `[...history, nextSquares]` creates a new array that contains all the items in `history`, followed by `nextSquares`.
+
+At this point, you’ve moved the state to live in the `Game` component, and the UI should be fully working, just as it was before the refactor.

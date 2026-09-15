@@ -32,6 +32,7 @@ A simple tic-tac-toe game built with React
 - [5. Improvements](#5-improvements)
   - [5.1. Highlight the winning squares](#51-highlight-the-winning-squares)
   - [5.2. Adding a message when there is a draw](#52-adding-a-message-when-there-is-a-draw)
+- [6. Deploying to Netlify](#6-deploying-to-netlify)
 
 # 1. Initial setups
 
@@ -1236,3 +1237,14 @@ export function Board({ xIsNext, squares, onPlay }) {
   )
 }
 ```
+
+# 6. Deploying to Netlify
+
+- Commit your changes and push the `tic-tac-toe` game to GitHub
+- Login to Netlify
+- Go to `Projects` view.
+- Click on `Add new project` button
+- click on `Import a git repository` -> `Github`
+- Select the github repository
+- Write a project name
+- Click on `Deploy` button

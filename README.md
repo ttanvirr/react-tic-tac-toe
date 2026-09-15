@@ -1,3 +1,7 @@
+# Tic Tac Toe Game <!-- omit in toc -->
+
+A simple tic-tac-toe game built with React
+
 # Table of contents <!-- omit in toc -->
 
 - [1. Initial setups](#1-initial-setups)
@@ -27,7 +31,7 @@
 - [4. Wrapping up](#4-wrapping-up)
 - [5. Improvements](#5-improvements)
   - [5.1. Highlight the winning squares](#51-highlight-the-winning-squares)
-  - [Adding a message when there is a draw](#adding-a-message-when-there-is-a-draw)
+  - [5.2. Adding a message when there is a draw](#52-adding-a-message-when-there-is-a-draw)
 
 # 1. Initial setups
 
@@ -1203,7 +1207,7 @@ function calculateWinner(squares) {
 }
 ```
 
-## Adding a message when there is a draw
+## 5.2. Adding a message when there is a draw
 
 In the `Board` component when setting the `status`, we'll check if all the squares are filled and if so, we'll set the `status` to "Match Draw!"
 

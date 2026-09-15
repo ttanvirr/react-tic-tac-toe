@@ -25,6 +25,9 @@
   - [3.5. Implementing time travel](#35-implementing-time-travel)
   - [3.6. Final cleanup](#36-final-cleanup)
 - [4. Wrapping up](#4-wrapping-up)
+- [5. Improvements](#5-improvements)
+  - [5.1. Highlight the winning squares](#51-highlight-the-winning-squares)
+  - [Adding a message when there is a draw](#adding-a-message-when-there-is-a-draw)
 
 # 1. Initial setups
 
@@ -1165,14 +1168,67 @@ Congratulations! You’ve created a tic-tac-toe game that:
 - Stores a game’s history as a game progresses,
 - Allows players to review a game’s history and see previous versions of a game’s board.
 
-We hope you now feel like you have a decent grasp of how React works.
-
 Check out the final result.
 
-Here are some ideas for improvements that you could make to the tic-tac-toe game, listed in order of increasing difficulty:
+# 5. Improvements
 
-1. For the current move only, show “You are at move #…” instead of a button.
-2. Rewrite Board to use two loops to make the squares instead of hardcoding them.
-3. Add a toggle button that lets you sort the moves in either ascending or descending order.
-4. When someone wins, highlight the three squares that caused the win (and when no one wins, display a message about the result being a draw).
-5. Display the location for each move in the format (row, col) in the move history list.
+## 5.1. Highlight the winning squares
+
+Add a style to the winning squares in `index.css`:
+
+```css
+.square.winning {
+  background: #b6d7a8;
+}
+```
+
+In the `calculateWinner` helper function, add the following javascript to change the background color of the winning squares:
+
+```js
+function calculateWinner(squares) {
+  // ...
+  for (let i = 0; i < lines.length; i++) {
+    const [a, b, c] = lines[i]
+
+    if (squares[a] && squares[a] === squares[b] && squares[a] === squares[c]) {
+      // change the bg color of the winning squares
+      const squareButtons = document.querySelectorAll(".square")
+      lines[i].forEach((idx) => squareButtons[idx].classList.add("winning"))
+      // return the winner (X or O)
+      return squares[a]
+    }
+  }
+  // If there is no winner
+  return null
+}
+```
+
+## Adding a message when there is a draw
+
+In the `Board` component when setting the `status`, we'll check if all the squares are filled and if so, we'll set the `status` to "Match Draw!"
+
+`App.jsx`
+
+```jsx
+export function Board({ xIsNext, squares, onPlay }) {
+  function handleClick(i) {
+    // ...
+  }
+
+  // Game status
+  const winner = calculateWinner(squares)
+  let status
+
+  if (winner) {
+    status = `Winner: ${winner} 👍`
+  } else if (squares.every((square) => square)) {
+    status = "Match Draw!"
+  } else {
+    status = `Next player: ${xIsNext ? "X" : "O"}`
+  }
+
+  return (
+    // ...
+  )
+}
+```

@@ -33,8 +33,11 @@ export function Board({ xIsNext, squares, onPlay }) {
   // Game status
   const winner = calculateWinner(squares)
   let status
+
   if (winner) {
     status = `Winner: ${winner} 👍`
+  } else if (squares.every((square) => square)) {
+    status = "Match Draw!"
   } else {
     status = `Next player: ${xIsNext ? "X" : "O"}`
   }
@@ -121,6 +124,10 @@ function calculateWinner(squares) {
     const [a, b, c] = lines[i]
 
     if (squares[a] && squares[a] === squares[b] && squares[a] === squares[c]) {
+      // change the bg color of the winning squares
+      const squareButtons = document.querySelectorAll(".square")
+      lines[i].forEach((idx) => squareButtons[idx].classList.add("winning"))
+      // return the winner (X or O)
       return squares[a]
     }
   }
